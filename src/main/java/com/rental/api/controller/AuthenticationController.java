@@ -10,7 +10,9 @@ import com.rental.api.model.User;
 import com.rental.api.service.AuthenticationService;
 import com.rental.api.service.JwtService;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,5 +54,22 @@ public class AuthenticationController {
             .build();
 
         return ResponseEntity.ok(loginResponse);
-    }  
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<User> authenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        /*
+            Handle case where user tries to access /me without being authenticated 
+            (Error in terminal when casting `authentication.getPrincipal()` to User class)
+        */ 
+        if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof User)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        User currentUser = (User) authentication.getPrincipal();
+
+        return ResponseEntity.ok(currentUser);
+    }
 }
