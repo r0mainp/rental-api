@@ -35,10 +35,8 @@ public class SecurityConfiguration {
         http.csrf((csrf) -> csrf.disable()) // disable csrf (stateless)
         .authorizeHttpRequests((authorizeHttpRequests) ->
             authorizeHttpRequests.requestMatchers("/api/auth/**").permitAll()
-        ) // request allowed without authentication
-        .authorizeHttpRequests((authorizeHttpRequests) ->
-            authorizeHttpRequests.anyRequest().authenticated()
-        ) // other request need authentication
+            .anyRequest().authenticated()
+        ) // request allowed without authentication 
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // session management is stateless
         .authenticationProvider(authenticationProvider) // set provider
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // set filter
