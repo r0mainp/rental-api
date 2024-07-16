@@ -1,10 +1,17 @@
 package com.rental.api.model;
 
+import java.util.Date;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Table(name = "rentals")
@@ -18,17 +25,29 @@ public class Rental {
     private String name;
 
     @Column(nullable = false)
-    private String surface;
+    private int surface;
 
     @Column(nullable = false)
-    private String price;
+    private double price;
 
     @Column
     private String picture;
 
     @Column(nullable = false)
     private String description;
+    
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
 
+
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at")
+    private Date createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private Date updatedAt;
     
     private Rental() {} // Use builder instead
 
@@ -40,11 +59,11 @@ public class Rental {
         return name;
     }
 
-    public String getSurface() {
+    public int getSurface() {
         return surface;
     }
 
-    public String getPrice() {
+    public double getPrice() {
         return price;
     }
 
@@ -58,22 +77,23 @@ public class Rental {
 
     public static class Builder{
         private String name;
-        private String surface;
-        private String price;
+        private int surface;
+        private double price;
         private String picture;
         private String description;
+        private User owner;
 
         public Builder setName(String name) {
             this.name = name;
             return this;
         }
     
-        public Builder setSurface(String surface) {
+        public Builder setSurface(int surface) {
             this.surface = surface;
             return this;
         }
     
-        public Builder setPrice(String price) {
+        public Builder setPrice(double price) {
             this.price = price;
             return this;
         }
@@ -88,6 +108,11 @@ public class Rental {
             return this;
         }
 
+        public Builder setOwner(User owner) {
+            this.owner = owner;
+            return this;
+        }
+
         public Rental build() {
             Rental rental = new Rental();
             rental.name = this.name;
@@ -95,6 +120,7 @@ public class Rental {
             rental.price = this.price;
             rental.picture = this.picture;
             rental.description = this.description;
+            rental.owner = this.owner;
             return rental;
         }
     }
