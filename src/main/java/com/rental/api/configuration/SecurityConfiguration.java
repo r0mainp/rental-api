@@ -34,7 +34,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.csrf((csrf) -> csrf.disable()) // disable csrf (stateless)
         .authorizeHttpRequests((authorizeHttpRequests) ->
-            authorizeHttpRequests.requestMatchers("/auth/**").permitAll()
+            authorizeHttpRequests.requestMatchers("/api/auth/**").permitAll()
         ) // request allowed without authentication
         .authorizeHttpRequests((authorizeHttpRequests) ->
             authorizeHttpRequests.anyRequest().authenticated()
