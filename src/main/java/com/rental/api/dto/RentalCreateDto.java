@@ -27,5 +27,27 @@ public class RentalCreateDto {
 
     public String getDescription() {
         return description;
-    }   
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSurface(int surface) {
+        this.surface = surface;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public void setPicture(MultipartFile picture) {
+        this.picture = picture;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    
 }
