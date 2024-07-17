@@ -9,13 +9,17 @@ import com.rental.api.model.RentalResponse;
 import com.rental.api.service.RentalService;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RequestMapping("/api/rentals")
@@ -40,4 +44,14 @@ public class RentalController {
         Rental newRental = rentalService.addRental(rentalDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newRental);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Rental> getRental(@PathVariable("id") final Integer id) {
+        Optional<Rental> fetchedRental = rentalService.getRentalById(id);
+
+        return fetchedRental
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    
 }
