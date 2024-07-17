@@ -3,7 +3,7 @@ package com.rental.api.service;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,9 +25,6 @@ public class RentalService {
     private S3Service s3Service;
 
     private String picturePath;
-    
-    @Value("${file.upload-dir}")
-    private String uploadDir;
     
     public RentalService(RentalRepository rentalRepository, S3Service s3Service){
         this.rentalRepository = rentalRepository;
