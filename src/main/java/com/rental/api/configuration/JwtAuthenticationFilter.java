@@ -75,6 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 
             filterChain.doFilter(request, response); // pass through filter with authentication
         } catch (Exception exception){
+            System.out.println(exception);
             handlerExceptionResolver.resolveException(request, response, null, exception);
         }
 
