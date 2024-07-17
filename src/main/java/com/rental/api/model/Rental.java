@@ -92,6 +92,11 @@ public class Rental {
         return owner != null ? owner.getId() : null;
     }
 
+    // Package-private setter for the ID field
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public static class Builder{
         private String name;
         private int surface;
