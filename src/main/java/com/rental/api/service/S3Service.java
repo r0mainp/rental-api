@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 
 import java.io.IOException;
 
@@ -25,7 +26,11 @@ public class S3Service {
 
     public String uploadFile(String keyName, MultipartFile file) {
         try {
-            s3client.putObject(bucketName, keyName, file.getInputStream(), null);
+
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(file.getSize());
+
+            s3client.putObject(bucketName, keyName, file.getInputStream(), metadata);
             return keyName;
         } catch (IOException e) {
             throw new RuntimeException("Failed to read file input stream", e);
