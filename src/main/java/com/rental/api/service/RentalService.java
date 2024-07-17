@@ -1,9 +1,7 @@
 package com.rental.api.service;
 
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -19,18 +17,21 @@ import com.rental.api.repository.RentalRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import java.net.URL;
 
 @Service
 public class RentalService {
     private final RentalRepository rentalRepository;
+    private S3Service s3Service;
+
+    private String picturePath;
     
     @Value("${file.upload-dir}")
     private String uploadDir;
     
-    public RentalService(RentalRepository rentalRepository){
+    public RentalService(RentalRepository rentalRepository, S3Service s3Service){
         this.rentalRepository = rentalRepository;
+        this.s3Service = s3Service;
     }
 
     // Gets all rental
@@ -45,10 +46,14 @@ public class RentalService {
 
     // Creates a new rental
     public Rental addRental(RentalCreateDto input){
-        // TODO: use S3 buck to store image instead of local folder
-        String picturePath = null;
-        if (input.getPicture() != null && !input.getPicture().isEmpty()) {
-            picturePath = saveFile(input.getPicture());
+        
+        MultipartFile file = input.getPicture();
+        
+        // Upload file to S3 bucket and get file path
+        if (file != null && !file.isEmpty()) {
+            String keyName =UUID.randomUUID().toString() + "_" + sanitizeFilename(file.getOriginalFilename()); // Create unique name
+            URL fileUrl = s3Service.uploadAndGetFileUrl(keyName, file); // upload and retrieve URL
+            picturePath = fileUrl.toString(); // set path
         }
 
         // Get current user
@@ -94,34 +99,7 @@ public class RentalService {
         return rentalRepository.save(updatedRental);
     }
     
-    // TODO: Remove when files are handled with S3 bucket
     private String sanitizeFilename(String filename) {
         return filename.replaceAll("[^a-zA-Z0-9.\\-_]", "_"); // Replace illegal characters
     }
-
-    private String saveFile(MultipartFile file) {
-        try {
-            // Create the upload directory if it does not exist
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            // Generate a unique file name
-            String originalFilename = file.getOriginalFilename();
-            String sanitizedFilename = sanitizeFilename(originalFilename);
-            String fileName = System.currentTimeMillis() + "_" + sanitizedFilename;
-            Path filePath = uploadPath.resolve(fileName);
-
-            // Save the file to the specified path
-            file.transferTo(filePath.toFile());
-
-            // Return the file path as a string
-            return filePath.toString();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save file", e);
-        }
-    }
-
-
 }
