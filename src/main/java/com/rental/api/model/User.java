@@ -2,18 +2,25 @@ package com.rental.api.model;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Table(name="users")
@@ -32,12 +39,17 @@ public class User implements UserDetails{
     @Column(nullable = false)
     private String password;
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Rental> rentals = new HashSet<>();
+
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
+    @JsonProperty("created_at")
     private Date createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
+    @JsonProperty("updated_at")
     private Date updatedAt;
 
     private User() {
@@ -59,6 +71,14 @@ public class User implements UserDetails{
 
     public String getPassword() {
         return password;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 
     @Override
