@@ -11,6 +11,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,10 +44,12 @@ public class User implements UserDetails{
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
+    @JsonProperty("created_at")
     private Date createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
+    @JsonProperty("updated_at")
     private Date updatedAt;
 
     private User() {
@@ -67,6 +71,14 @@ public class User implements UserDetails{
 
     public String getPassword() {
         return password;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 
     @Override
