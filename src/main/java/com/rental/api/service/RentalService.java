@@ -11,10 +11,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.rental.api.dto.RentalDto;
+import com.rental.api.dto.RentalCreateDto;
+import com.rental.api.dto.RentalUpdateDto;
 import com.rental.api.model.Rental;
 import com.rental.api.model.User;
 import com.rental.api.repository.RentalRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -38,7 +41,7 @@ public class RentalService {
         return rentalRepository.findById(id);
     }
 
-    public Rental addRental(RentalDto input){
+    public Rental addRental(RentalCreateDto input){
         String picturePath = null;
         if (input.getPicture() != null && !input.getPicture().isEmpty()) {
             picturePath = saveFile(input.getPicture());
@@ -55,10 +58,32 @@ public class RentalService {
             .setPicture(picturePath)
             .setOwner(currentUser)
             .build();
-
         return rentalRepository.save(newRental);
     }
 
+    public Rental updateRental(Integer id, RentalUpdateDto input) {
+
+        Rental existingRental = getRentalById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Rental not found with id " + id));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Rental updatedRental = new Rental.Builder()
+            .setName(input.getName())
+            .setSurface(input.getSurface())
+            .setPrice(input.getPrice())
+            .setPicture(existingRental.getPicture())
+            .setDescription(input.getDescription())
+            .setOwner(currentUser)
+            .build();
+
+        // Ensure the new object retains the original id
+        updatedRental.setId(existingRental.getId());
+
+        return rentalRepository.save(updatedRental);
+    }
+    
     private String sanitizeFilename(String filename) {
         return filename.replaceAll("[^a-zA-Z0-9.\\-_]", "_"); // Replace illegal characters
     }
@@ -86,5 +111,6 @@ public class RentalService {
             throw new RuntimeException("Failed to save file", e);
         }
     }
+
 
 }
