@@ -34,6 +34,7 @@ public class RentalController {
         this.rentalService = rentalService;
     }
 
+    // Fetch all rentals and returns them in a RentalResponse
     @GetMapping("")
     public ResponseEntity<RentalResponse> getAllRentals() {
         List<Rental> rentals = (List<Rental>) rentalService.getAllRentals();
@@ -41,7 +42,7 @@ public class RentalController {
         return ResponseEntity.ok(rentalResponse);
     }
 
-    
+    // Fetch a rental by its id an return 200 or 404
     @GetMapping("/{id}")
     public ResponseEntity<Rental> getRental(@PathVariable("id") final Integer id) {
         Optional<Rental> fetchedRental = rentalService.getRentalById(id);
@@ -51,20 +52,28 @@ public class RentalController {
         .orElseGet(() -> ResponseEntity.notFound().build());
     }
     
+    // Accepts a RentalCreateDto via multipart/form-data to create a new rental, return 201
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Rental> createRental(@ModelAttribute RentalCreateDto rentalDto) {
         Rental newRental = rentalService.addRental(rentalDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newRental);
     }
 
+    /*
+     * Updates an existing rental
+     * @RequestParam are used instead of @ModelAttribute to prevent bindings error
+     * return 200;
+     */
     @PutMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Rental> updateRental(
-        @PathVariable Integer id, @RequestParam String name,
+        @PathVariable Integer id, 
+        @RequestParam String name,
         @RequestParam int surface,
         @RequestParam double price,
         @RequestParam String description
     ) {
 
+        // Creates the new Dto used in service
         RentalUpdateDto rentalDto = new RentalUpdateDto();
         rentalDto.setName(name);
         rentalDto.setSurface(surface);
