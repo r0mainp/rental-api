@@ -33,23 +33,29 @@ public class RentalService {
         this.rentalRepository = rentalRepository;
     }
 
+    // Gets all rental
     public Iterable<Rental> getAllRentals() {
         return rentalRepository.findAll();
     }
 
+    // Get a rental by id
     public Optional<Rental> getRentalById(final Integer id) {
         return rentalRepository.findById(id);
     }
 
+    // Creates a new rental
     public Rental addRental(RentalCreateDto input){
+        // TODO: use S3 buck to store image instead of local folder
         String picturePath = null;
         if (input.getPicture() != null && !input.getPicture().isEmpty()) {
             picturePath = saveFile(input.getPicture());
         }
 
+        // Get current user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
+        // Create a new Rental based on input
         Rental newRental = new Rental.Builder()
             .setName(input.getName())
             .setSurface(input.getSurface())
@@ -61,14 +67,18 @@ public class RentalService {
         return rentalRepository.save(newRental);
     }
 
+    // Update a specific rental
     public Rental updateRental(Integer id, RentalUpdateDto input) {
 
+        //Get rental based on id
         Rental existingRental = getRentalById(id)
             .orElseThrow(() -> new EntityNotFoundException("Rental not found with id " + id));
 
+        // get current user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
+        // Create a new rental based on existing data and input
         Rental updatedRental = new Rental.Builder()
             .setName(input.getName())
             .setSurface(input.getSurface())
@@ -84,6 +94,7 @@ public class RentalService {
         return rentalRepository.save(updatedRental);
     }
     
+    // TODO: Remove when files are handled with S3 bucket
     private String sanitizeFilename(String filename) {
         return filename.replaceAll("[^a-zA-Z0-9.\\-_]", "_"); // Replace illegal characters
     }
