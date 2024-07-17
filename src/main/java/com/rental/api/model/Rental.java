@@ -5,6 +5,8 @@ import java.util.Date;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -43,10 +45,12 @@ public class Rental {
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
+    @JsonProperty("created_at")
     private Date createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
+    @JsonProperty("updated_at")
     private Date updatedAt;
     
     private Rental() {} // Use builder instead
@@ -73,6 +77,19 @@ public class Rental {
 
     public String getDescription() {
         return description;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    @JsonProperty("owner_id")
+    public Integer getOwnerId() {
+        return owner != null ? owner.getId() : null;
     }
 
     public static class Builder{
