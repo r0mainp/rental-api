@@ -1,3 +1,11 @@
+## Install database (Windows)
+
+- Install MySql from `https://dev.mysql.com/downloads/installer/`
+- Run `MySQL Command Line Client`
+- Set root password with `mysqladmin -u root password 'your password'`
+- Create databse with `CREATE DATABASE name;`
+- load databse from script.sql with `mysql -u root -p database_name < path/to/scrip.sql`
+
 ## Install and run app
 
 - clone repository with `git clone https://github.com/r0mainp/rental-api.git`
@@ -5,15 +13,15 @@
 - create a file `env.properties` in `/src/main/resources/env.properties` and add
 
  ```
-    # aws s3 properties
-    aws.access.key=`${AWS_ACCESS_KEY:<YOUR ACCESS KEY>}`
-    aws.secret.key=${AWS_SECRET_KEY:<YOUR SECRET KEY>}
-    aws.s3.bucket=${AWS_S3_BUCKET:<your-bucket-name>}
-    
     # DB infos
     spring.datasource.url=jdbc:mysql://<db_url>::<port>?useSSL=false
     spring.datasource.username=<DB username>
     spring.datasource.password=<DB password>
+
+    # aws s3 properties
+    aws.access.key=`${AWS_ACCESS_KEY:<YOUR ACCESS KEY>}`
+    aws.secret.key=${AWS_SECRET_KEY:<YOUR SECRET KEY>}
+    aws.s3.bucket=${AWS_S3_BUCKET:<your-bucket-name>}
     
     # JWT config
     security.jwt.secret-key=<SHA-256 secret key>
