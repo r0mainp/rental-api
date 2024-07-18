@@ -58,8 +58,7 @@ public class AuthenticationController {
             responseCode = "200", 
             description = "User registered successfully", 
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
-        ),
-        @ApiResponse(responseCode = "400", description = "Invalid input data")
+        )
     })
     public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
