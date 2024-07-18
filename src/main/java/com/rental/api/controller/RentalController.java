@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.rental.api.dto.RentalCreateDto;
 import com.rental.api.dto.RentalUpdateDto;
+import com.rental.api.model.GenericResponse;
 import com.rental.api.model.Rental;
 import com.rental.api.model.RentalResponse;
 import com.rental.api.service.RentalService;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -44,17 +46,17 @@ public class RentalController {
 
     // Fetch all rentals and returns them in a RentalResponse
     @GetMapping("")
-        @Operation(
+    @Operation(
         summary = "Get all rentals",
-        description = "Retrieve a list of all rental properties from the database",
-        responses = {
-            @ApiResponse(
-                responseCode = "200", 
-                description = "List of rentals retrieved successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = RentalResponse.class))
-            )
-        }
+        description = "Retrieve a list of all rental properties from the database"
     )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "List of rentals retrieved successfully",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = RentalResponse.class))
+        )
+    })
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<RentalResponse> getAllRentals() {
         List<Rental> rentals = (List<Rental>) rentalService.getAllRentals();
@@ -67,23 +69,31 @@ public class RentalController {
     @Operation(
         summary = "Get a rental by ID",
         description = "Retrieve a rental property by its ID from the database",
-        parameters = @Parameter(name = "id", description = "ID of the rental to be retrieved", required = true),
-        responses = {
-            @ApiResponse(
-                responseCode = "200", 
-                description = "Rental found and returned successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class))
-            ),
-            @ApiResponse(responseCode = "404", description = "Rental not found for the provided ID")
-        }
+        parameters = @Parameter(name = "id", description = "ID of the rental to be retrieved", required = true)
     )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Rental found and returned successfully",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class))
+        ),
+        @ApiResponse(
+            responseCode = "404", 
+            description = "Rental not found for the provided ID",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = GenericResponse.class))
+        )
+    })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<Rental> getRental(@PathVariable("id") final Integer id) {
+    public ResponseEntity<?> getRental(@PathVariable("id") final Integer id) {
         Optional<Rental> fetchedRental = rentalService.getRentalById(id);
         
-        return fetchedRental
-        .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+        if (fetchedRental.isPresent()) {
+            Rental rental = fetchedRental.get();
+            return ResponseEntity.ok().body(rental);
+        } else {
+            GenericResponse response = new GenericResponse("Rental not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
     
     // Accepts a RentalCreateDto via multipart/form-data to create a new rental, return 201
@@ -95,17 +105,17 @@ public class RentalController {
             description = "Details of the rental to be created",
             required = true,
             content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(implementation = RentalCreateDto.class))
-        ),
-        responses = {
-            @ApiResponse(
-                responseCode = "201", 
-                description = "Rental created successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class))
-            )
-        }
+        )
     )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "201", 
+            description = "Rental created successfully",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = GenericResponse.class))
+        )
+    })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<Rental> createRental(
+    public ResponseEntity<GenericResponse> createRental(
         @RequestParam String name,
         @RequestParam int surface,
         @RequestParam double price,
@@ -119,8 +129,9 @@ public class RentalController {
         rentalDto.setDescription(description);
         rentalDto.setPicture(picture);
 
-        Rental newRental = rentalService.addRental(rentalDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newRental);
+        rentalService.addRental(rentalDto);
+        GenericResponse response = new GenericResponse("Rental created !");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /*
@@ -137,17 +148,17 @@ public class RentalController {
             description = "Updated details of the rental",
             required = true,
             content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(implementation = RentalUpdateDto.class))
-        ),
-        responses = {
-            @ApiResponse(
-                responseCode = "200", 
-                description = "Rental updated successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class))
-            )
-        }
+        )
     )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Rental updated successfully",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = GenericResponse.class))
+        )
+    })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<Rental> updateRental(
+    public ResponseEntity<GenericResponse> updateRental(
         @PathVariable Integer id, 
         @RequestParam String name,
         @RequestParam int surface,
@@ -162,8 +173,9 @@ public class RentalController {
         rentalDto.setPrice(price);
         rentalDto.setDescription(description);
 
-        Rental updatedRental = rentalService.updateRental(id, rentalDto);
-        return ResponseEntity.ok(updatedRental);
+        rentalService.updateRental(id, rentalDto);
+        GenericResponse response = new GenericResponse("Rental updated !");
+        return ResponseEntity.ok(response);
     }
     
 }

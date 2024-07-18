@@ -4,13 +4,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rental.api.dto.MessageDto;
-import com.rental.api.model.Message;
+import com.rental.api.model.GenericResponse;
 import com.rental.api.service.MessageService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -32,27 +33,27 @@ public class MessageController {
 
     // Post message
     @PostMapping("")
-        @Operation(
+    @Operation(
         summary = "Send a message",
         description = "Send a message with the provided details",
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Details of the message to be sent",
             required = true,
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageDto.class))
-        ),
-        responses = {
-            @ApiResponse(
-                responseCode = "200", 
-                description = "Message sent successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))
-            )
-        }
-    )
+        ))
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Message sent successfully",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = GenericResponse.class))
+        )
+    })
     @SecurityRequirement(name = "bearerAuth")
-    public  ResponseEntity<Message> sendMessage(@RequestBody MessageDto messageDto) {
+    public  ResponseEntity<GenericResponse> sendMessage(@RequestBody MessageDto messageDto) {
         
-        Message newMessage = messageService.addNewMessage(messageDto);
-        return ResponseEntity.ok(newMessage);
+        messageService.addNewMessage(messageDto);
+        GenericResponse response = new GenericResponse("Message sent with success");
+        return ResponseEntity.ok(response);
     }
     
 }

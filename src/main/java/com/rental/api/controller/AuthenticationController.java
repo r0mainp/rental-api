@@ -5,8 +5,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rental.api.dto.LoginUserDto;
 import com.rental.api.dto.RegisterUserDto;
-import com.rental.api.model.LoginResponse;
+import com.rental.api.model.GenericResponse;
+import com.rental.api.model.AuthResponse;
 import com.rental.api.model.User;
+import com.rental.api.model.UserDetailsResponse;
 import com.rental.api.service.AuthenticationService;
 import com.rental.api.service.JwtService;
 
@@ -22,6 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,14 +58,15 @@ public class AuthenticationController {
         @ApiResponse(
             responseCode = "200", 
             description = "User registered successfully", 
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
-        ),
-        @ApiResponse(responseCode = "400", description = "Invalid input data")
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))
+        )
     })
-    public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
+        String jwtToken = jwtService.generateToken(registeredUser);
+        AuthResponse response = new AuthResponse(jwtToken);
         
-        return ResponseEntity.ok(registeredUser);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
@@ -74,25 +78,31 @@ public class AuthenticationController {
         @ApiResponse(
             responseCode = "200", 
             description = "User authenticated successfully and JWT token generated", 
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))
             ),
-        @ApiResponse(responseCode = "401", description = "Authentication failed due to invalid credentials")
+        @ApiResponse(
+            responseCode = "401", 
+            description = "Authentication failed due to invalid credentials",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = GenericResponse.class))
+        )
     })
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
-        User authenticatedUser = authenticationService.authenticate(loginUserDto);
+    public ResponseEntity<?> authenticate(@RequestBody LoginUserDto loginUserDto) {
+        try {
+            User authenticatedUser = authenticationService.authenticate(loginUserDto);
 
-        String jwtToken = jwtService.generateToken(authenticatedUser);
+            String jwtToken = jwtService.generateToken(authenticatedUser);
+            AuthResponse response = new AuthResponse(jwtToken);
 
-        LoginResponse loginResponse = new LoginResponse.Builder()
-            .setToken(jwtToken)
-            .setExpiresIn(jwtService.getExpirationTime())
-            .build();
-
-        return ResponseEntity.ok(loginResponse);
+            return ResponseEntity.ok(response);
+        }
+        catch (AuthenticationException ex) {
+            GenericResponse errorResponse = new GenericResponse("error");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
     }
 
     @GetMapping("/me")
-        @Operation(
+    @Operation(
         summary = "Get authenticated user",
         description = "Retrieve details of the authenticated user"
     )
@@ -100,12 +110,16 @@ public class AuthenticationController {
         @ApiResponse(
             responseCode = "200", 
             description = "Authenticated user details retrieved successfully", 
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDetailsResponse.class))
         ),
-        @ApiResponse(responseCode = "403", description = "Access denied due to missing or invalid authentication")
+        @ApiResponse(
+            responseCode = "403", 
+            description = "Access denied due to missing or invalid authentication",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = GenericResponse.class))
+        )
     })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<User> authenticatedUser() {
+    public ResponseEntity<?> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         /*
@@ -113,11 +127,20 @@ public class AuthenticationController {
             (Error in terminal when casting `authentication.getPrincipal()` to User class)
         */ 
         if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof User)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            GenericResponse errorResponse = new GenericResponse("Forbidden");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
         }
 
         User currentUser = (User) authentication.getPrincipal();
 
-        return ResponseEntity.ok(currentUser);
+        UserDetailsResponse userDetails = new UserDetailsResponse(
+            currentUser.getId(),
+            currentUser.getName(),
+            currentUser.getEmail(),
+            currentUser.getCreatedAt(),
+            currentUser.getUpdatedAt()
+        );
+
+        return ResponseEntity.ok(userDetails);
     }
 }
