@@ -77,15 +77,23 @@ public class RentalController {
             description = "Rental found and returned successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class))
         ),
-        @ApiResponse(responseCode = "404", description = "Rental not found for the provided ID")
+        @ApiResponse(
+            responseCode = "404", 
+            description = "Rental not found for the provided ID",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = GenericResponse.class))
+        )
     })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<Rental> getRental(@PathVariable("id") final Integer id) {
+    public ResponseEntity<?> getRental(@PathVariable("id") final Integer id) {
         Optional<Rental> fetchedRental = rentalService.getRentalById(id);
         
-        return fetchedRental
-        .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+        if (fetchedRental.isPresent()) {
+            Rental rental = fetchedRental.get();
+            return ResponseEntity.ok().body(rental);
+        } else {
+            GenericResponse response = new GenericResponse("Rental not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
     
     // Accepts a RentalCreateDto via multipart/form-data to create a new rental, return 201

@@ -6,8 +6,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rental.api.dto.LoginUserDto;
 import com.rental.api.dto.RegisterUserDto;
 import com.rental.api.model.GenericResponse;
-import com.rental.api.model.LoginResponse;
+import com.rental.api.model.AuthResponse;
 import com.rental.api.model.User;
+import com.rental.api.model.UserDetailsResponse;
 import com.rental.api.service.AuthenticationService;
 import com.rental.api.service.JwtService;
 
@@ -57,13 +58,15 @@ public class AuthenticationController {
         @ApiResponse(
             responseCode = "200", 
             description = "User registered successfully", 
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))
         )
     })
-    public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
+        String jwtToken = jwtService.generateToken(registeredUser);
+        AuthResponse response = new AuthResponse(jwtToken);
         
-        return ResponseEntity.ok(registeredUser);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
@@ -75,7 +78,7 @@ public class AuthenticationController {
         @ApiResponse(
             responseCode = "200", 
             description = "User authenticated successfully and JWT token generated", 
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))
             ),
         @ApiResponse(
             responseCode = "401", 
@@ -88,13 +91,9 @@ public class AuthenticationController {
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
 
             String jwtToken = jwtService.generateToken(authenticatedUser);
+            AuthResponse response = new AuthResponse(jwtToken);
 
-            LoginResponse loginResponse = new LoginResponse.Builder()
-                .setToken(jwtToken)
-                .setExpiresIn(jwtService.getExpirationTime())
-                .build();
-
-            return ResponseEntity.ok(loginResponse);
+            return ResponseEntity.ok(response);
         }
         catch (AuthenticationException ex) {
             GenericResponse errorResponse = new GenericResponse("error");
@@ -111,7 +110,7 @@ public class AuthenticationController {
         @ApiResponse(
             responseCode = "200", 
             description = "Authenticated user details retrieved successfully", 
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDetailsResponse.class))
         ),
         @ApiResponse(
             responseCode = "403", 
@@ -134,6 +133,14 @@ public class AuthenticationController {
 
         User currentUser = (User) authentication.getPrincipal();
 
-        return ResponseEntity.ok(currentUser);
+        UserDetailsResponse userDetails = new UserDetailsResponse(
+            currentUser.getId(),
+            currentUser.getName(),
+            currentUser.getEmail(),
+            currentUser.getCreatedAt(),
+            currentUser.getUpdatedAt()
+        );
+
+        return ResponseEntity.ok(userDetails);
     }
 }
