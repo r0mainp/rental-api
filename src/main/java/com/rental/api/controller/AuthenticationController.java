@@ -31,7 +31,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 
 
-
+/**
+ * Controller class for handling authentication and authorization operations.
+ */
 @RequestMapping("/api/auth")
 @RestController
 @Tag(name = "Authentication API", description = "API for user authentication and authorization")
@@ -48,6 +50,12 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
+    /**
+     * Endpoint for user registration.
+     * 
+     * @param registerUserDto DTO containing user registration details.
+     * @return ResponseEntity containing an AuthResponse with JWT token upon successful registration.
+     */
     @PostMapping("/register")
     @Operation(
         summary = "Register user",
@@ -69,6 +77,13 @@ public class AuthenticationController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Endpoint for user authentication (login).
+     * 
+     * @param loginUserDto DTO containing user login credentials.
+     * @return ResponseEntity containing an AuthResponse with JWT token upon successful authentication,
+     *         or a GenericResponse with error details upon authentication failure.
+     */
     @PostMapping("/login")
     @Operation(
         summary = "Authenticate user",
@@ -79,7 +94,7 @@ public class AuthenticationController {
             responseCode = "200", 
             description = "User authenticated successfully and JWT token generated", 
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))
-            ),
+        ),
         @ApiResponse(
             responseCode = "401", 
             description = "Authentication failed due to invalid credentials",
@@ -101,6 +116,12 @@ public class AuthenticationController {
         }
     }
 
+    /**
+     * Endpoint to retrieve details of the authenticated user.
+     * 
+     * @return ResponseEntity containing UserDetailsResponse with authenticated user details,
+     *         or a GenericResponse with error details if authentication fails or user is unauthorized.
+     */
     @GetMapping("/me")
     @Operation(
         summary = "Get authenticated user",

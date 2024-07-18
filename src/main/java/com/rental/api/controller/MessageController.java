@@ -19,7 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
+/**
+ * Controller class for handling message-related operations.
+ */
 @RequestMapping("/api/messages")
 @RestController
 @Tag(name = "Message API", description = "API for sending messages to the owner of a rental")
@@ -31,7 +33,12 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-    // Post message
+    /**
+     * Endpoint to send a message to the owner of a rental.
+     * 
+     * @param messageDto DTO containing details of the message to be sent.
+     * @return ResponseEntity containing a GenericResponse indicating success or failure of the operation.
+     */
     @PostMapping("")
     @Operation(
         summary = "Send a message",
