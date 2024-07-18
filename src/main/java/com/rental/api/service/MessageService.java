@@ -14,17 +14,32 @@ import com.rental.api.repository.MessageRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
+/**
+ * Service class for managing messages related operations.
+ */
 @Service
 public class MessageService {
     private MessageRepository messageRepository;
     private RentalService rentalService;
 
+    /**
+     * Constructs a MessageService instance with necessary dependencies.
+     *
+     * @param messageRepository The repository for Message entities.
+     * @param rentalService The service for Rental operations.
+     */
     public MessageService(MessageRepository messageRepository, RentalService rentalService){
         this.messageRepository = messageRepository;
         this.rentalService = rentalService;
     }
 
-    // Creates a new message and saves it in DB
+    /**
+     * Creates a new message and saves it in the database.
+     *
+     * @param input The DTO containing details of the message to be created.
+     * @return The created Message entity.
+     * @throws EntityNotFoundException if the specified rental ID does not exist.
+     */
     public Message addNewMessage(MessageDto input){
 
         // Get rental

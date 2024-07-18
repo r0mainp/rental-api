@@ -19,6 +19,9 @@ import jakarta.persistence.EntityNotFoundException;
 
 import java.net.URL;
 
+/**
+ * Service class for managing rental operations.
+ */
 @Service
 public class RentalService {
     private final RentalRepository rentalRepository;
@@ -26,22 +29,42 @@ public class RentalService {
 
     private String picturePath;
     
+    /**
+     * Constructs a RentalService instance with necessary dependencies.
+     *
+     * @param rentalRepository The repository for Rental entities.
+     * @param s3Service The service for interacting with AWS S3.
+     */
     public RentalService(RentalRepository rentalRepository, S3Service s3Service){
         this.rentalRepository = rentalRepository;
         this.s3Service = s3Service;
     }
 
-    // Gets all rental
+    /**
+     * Retrieves all rentals from the database.
+     *
+     * @return Iterable collection of Rental entities.
+     */
     public Iterable<Rental> getAllRentals() {
         return rentalRepository.findAll();
     }
 
-    // Get a rental by id
+    /**
+     * Retrieves a rental by its ID from the database.
+     *
+     * @param id The ID of the rental to retrieve.
+     * @return Optional containing the found Rental entity, or empty if not found.
+     */
     public Optional<Rental> getRentalById(final Integer id) {
         return rentalRepository.findById(id);
     }
 
-    // Creates a new rental
+    /**
+     * Creates a new rental based on the provided DTO.
+     *
+     * @param input The DTO containing details of the rental to be created.
+     * @return The created Rental entity.
+     */
     public Rental addRental(RentalCreateDto input){
         
         MultipartFile file = input.getPicture();
@@ -69,7 +92,14 @@ public class RentalService {
         return rentalRepository.save(newRental);
     }
 
-    // Update a specific rental
+    /**
+     * Updates an existing rental with new information.
+     *
+     * @param id The ID of the rental to update.
+     * @param input The DTO containing updated details of the rental.
+     * @return The updated Rental entity.
+     * @throws EntityNotFoundException if the specified rental ID does not exist.
+     */
     public Rental updateRental(Integer id, RentalUpdateDto input) {
 
         //Get rental based on id
@@ -96,6 +126,12 @@ public class RentalService {
         return rentalRepository.save(updatedRental);
     }
     
+    /**
+     * Sanitizes the given filename by replacing illegal characters with underscores.
+     *
+     * @param filename The filename to sanitize.
+     * @return The sanitized filename.
+     */
     private String sanitizeFilename(String filename) {
         return filename.replaceAll("[^a-zA-Z0-9.\\-_]", "_"); // Replace illegal characters
     }
