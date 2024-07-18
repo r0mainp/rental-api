@@ -20,9 +20,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -101,9 +98,8 @@ public class AuthenticationController {
             return ResponseEntity.ok(loginResponse);
         }
         catch (AuthenticationException ex) {
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "error");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            ErrorResponse errorResponse = new ErrorResponse("error");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 
@@ -118,10 +114,14 @@ public class AuthenticationController {
             description = "Authenticated user details retrieved successfully", 
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
         ),
-        @ApiResponse(responseCode = "403", description = "Access denied due to missing or invalid authentication")
+        @ApiResponse(
+            responseCode = "403", 
+            description = "Access denied due to missing or invalid authentication",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+        )
     })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<User> authenticatedUser() {
+    public ResponseEntity<?> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         /*
@@ -129,7 +129,8 @@ public class AuthenticationController {
             (Error in terminal when casting `authentication.getPrincipal()` to User class)
         */ 
         if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof User)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            ErrorResponse errorResponse = new ErrorResponse("Forbidden");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
         }
 
         User currentUser = (User) authentication.getPrincipal();
