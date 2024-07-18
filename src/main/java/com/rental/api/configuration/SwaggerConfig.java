@@ -11,6 +11,12 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @Configuration
 public class SwaggerConfig {
+
+    /**
+     * Configures custom OpenAPI settings for the RentalApp API.
+     *
+     * @return OpenAPI instance configured with security scheme and API information.
+     */
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
