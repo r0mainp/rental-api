@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rental.api.dto.LoginUserDto;
 import com.rental.api.dto.RegisterUserDto;
+import com.rental.api.model.ErrorResponse;
 import com.rental.api.model.LoginResponse;
 import com.rental.api.model.User;
 import com.rental.api.service.AuthenticationService;
@@ -29,7 +30,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 
 
@@ -108,7 +108,7 @@ public class AuthenticationController {
     }
 
     @GetMapping("/me")
-        @Operation(
+    @Operation(
         summary = "Get authenticated user",
         description = "Retrieve details of the authenticated user"
     )
