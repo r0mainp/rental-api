@@ -37,7 +37,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
         this.handlerExceptionResolver = handlerExceptionResolver;
     }
 
-    // process each HTTP request
+    /**
+     * Filters incoming HTTP requests to authenticate requests based on JWT in the Authorization header.
+     * If a valid JWT is present and the user is not already authenticated, it sets the user authentication
+     * in the SecurityContextHolder.
+     * 
+     * @param request     The HTTP servlet request.
+     * @param response    The HTTP servlet response.
+     * @param filterChain The filter chain to proceed with after authentication.
+     * @throws ServletException If a servlet exception occurs.
+     * @throws IOException      If an I/O exception occurs.
+     */
     @Override
     protected void doFilterInternal(
         @NonNull HttpServletRequest request,

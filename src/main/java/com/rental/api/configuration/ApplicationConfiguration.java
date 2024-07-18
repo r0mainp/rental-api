@@ -21,26 +21,44 @@ public class ApplicationConfiguration {
         this.userRepository = userRepository;
     }
 
-    // Use lanbda to get a user by its email
+    /**
+     * Retrieves the UserDetailsService implementation that loads user details by email.
+     * 
+     * @return UserDetailsService implementation based on UserRepository.
+     */
     @Bean
     UserDetailsService userDetailsService(){
         return username -> userRepository.findByEmail(username)
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    // Hash password
+    /**
+     * Provides a BCrypt password encoder bean.
+     * 
+     * @return BCryptPasswordEncoder instance.
+     */
     @Bean
     BCryptPasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
-    // Process authentication requests
+    /**
+     * Retrieves the AuthenticationManager bean.
+     * 
+     * @param config AuthenticationConfiguration instance.
+     * @return AuthenticationManager instance.
+     * @throws Exception If an error occurs while retrieving the AuthenticationManager.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // Provider used to retrieve user and check password
+    /**
+     * Provides an AuthenticationProvider bean using DaoAuthenticationProvider.
+     * 
+     * @return AuthenticationProvider instance configured with UserDetailsService and password encoder.
+     */
     @Bean
     AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();

@@ -18,7 +18,12 @@ public class S3Configuration {
     @Value("${aws.secret.key}")
     private String awsSecretKey;
 
-    // Creates and configures an Amazon S3 client using the AWS SDK
+    /**
+     * Creates and configures an Amazon S3 client using the AWS SDK.
+     * 
+     * @return Configured AmazonS3 client instance.
+     * @throws IllegalArgumentException If the AWS access or secret key is invalid.
+     */
     @Bean
     public AmazonS3 s3client() {
 

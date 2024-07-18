@@ -32,7 +32,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 
-
+/**
+ * Controller class for handling CRUD operations on rentals.
+ */
 @RequestMapping("/api/rentals")
 @RestController
 @Tag(name = "Rental API", description = "API for CRUD operations on rentals")
@@ -44,7 +46,11 @@ public class RentalController {
         this.rentalService = rentalService;
     }
 
-    // Fetch all rentals and returns them in a RentalResponse
+    /**
+     * Endpoint to fetch all rentals from the database.
+     * 
+     * @return ResponseEntity containing a RentalResponse with the list of rentals retrieved.
+     */
     @GetMapping("")
     @Operation(
         summary = "Get all rentals",
@@ -64,7 +70,12 @@ public class RentalController {
         return ResponseEntity.ok(rentalResponse);
     }
 
-    // Fetch a rental by its id an return 200 or 404
+    /**
+     * Endpoint to fetch a rental by its ID.
+     * 
+     * @param id ID of the rental to be retrieved.
+     * @return ResponseEntity containing either the Rental found or a GenericResponse with an error message if not found.
+     */
     @GetMapping("/{id}")
     @Operation(
         summary = "Get a rental by ID",
@@ -96,7 +107,16 @@ public class RentalController {
         }
     }
     
-    // Accepts a RentalCreateDto via multipart/form-data to create a new rental, return 201
+    /**
+     * Endpoint to create a new rental.
+     * 
+     * @param name Name of the rental.
+     * @param surface Surface area of the rental.
+     * @param price Price of the rental.
+     * @param picture Picture of the rental.
+     * @param description Description of the rental.
+     * @return ResponseEntity containing a GenericResponse indicating success or failure of the operation.
+     */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
         summary = "Create a new rental",
@@ -134,10 +154,15 @@ public class RentalController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /*
-     * Updates an existing rental
-     * @RequestParam are used instead of @ModelAttribute to prevent bindings error
-     * return 200;
+    /**
+     * Endpoint to update an existing rental.
+     * 
+     * @param id ID of the rental to be updated.
+     * @param name Updated name of the rental.
+     * @param surface Updated surface area of the rental.
+     * @param price Updated price of the rental.
+     * @param description Updated description of the rental.
+     * @return ResponseEntity containing a GenericResponse indicating success or failure of the operation.
      */
     @PutMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(

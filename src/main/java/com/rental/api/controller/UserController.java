@@ -23,6 +23,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+/**
+ * Controller class for handling operations related to users.
+ */
 @RequestMapping("/api/user")
 @RestController
 @Tag(name = "User API", description = "API for users")
@@ -34,6 +37,12 @@ public class UserController {
         this.userService = userService;
     }
 
+    /**
+     * Endpoint to fetch a user by their ID.
+     * 
+     * @param id ID of the user to be retrieved.
+     * @return ResponseEntity containing either the UserDetailsResponse with user details or a GenericResponse if user is not found.
+     */
     @GetMapping("/{id}")
     @Operation(
         summary = "Get a user by ID",
