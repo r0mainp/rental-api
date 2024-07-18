@@ -1,9 +1,9 @@
 package com.rental.api.model;
 
-public class ErrorResponse {
+public class GenericResponse {
     private String message;
 
-    public ErrorResponse(String message) {
+    public GenericResponse(String message) {
         this.message = message;
     }
 

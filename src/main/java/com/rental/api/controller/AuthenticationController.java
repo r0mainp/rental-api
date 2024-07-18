@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rental.api.dto.LoginUserDto;
 import com.rental.api.dto.RegisterUserDto;
-import com.rental.api.model.ErrorResponse;
+import com.rental.api.model.GenericResponse;
 import com.rental.api.model.LoginResponse;
 import com.rental.api.model.User;
 import com.rental.api.service.AuthenticationService;
@@ -81,7 +81,7 @@ public class AuthenticationController {
         @ApiResponse(
             responseCode = "401", 
             description = "Authentication failed due to invalid credentials",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = GenericResponse.class))
         )
     })
     public ResponseEntity<?> authenticate(@RequestBody LoginUserDto loginUserDto) {
@@ -98,7 +98,7 @@ public class AuthenticationController {
             return ResponseEntity.ok(loginResponse);
         }
         catch (AuthenticationException ex) {
-            ErrorResponse errorResponse = new ErrorResponse("error");
+            GenericResponse errorResponse = new GenericResponse("error");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
@@ -117,7 +117,7 @@ public class AuthenticationController {
         @ApiResponse(
             responseCode = "403", 
             description = "Access denied due to missing or invalid authentication",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = GenericResponse.class))
         )
     })
     @SecurityRequirement(name = "bearerAuth")
@@ -129,7 +129,7 @@ public class AuthenticationController {
             (Error in terminal when casting `authentication.getPrincipal()` to User class)
         */ 
         if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof User)) {
-            ErrorResponse errorResponse = new ErrorResponse("Forbidden");
+            GenericResponse errorResponse = new GenericResponse("Forbidden");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
         }
 
