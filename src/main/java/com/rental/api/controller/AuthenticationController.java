@@ -19,12 +19,17 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 
 
@@ -76,19 +81,30 @@ public class AuthenticationController {
             description = "User authenticated successfully and JWT token generated", 
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))
             ),
-        @ApiResponse(responseCode = "401", description = "Authentication failed due to invalid credentials")
+        @ApiResponse(
+            responseCode = "401", 
+            description = "Authentication failed due to invalid credentials",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+        )
     })
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
-        User authenticatedUser = authenticationService.authenticate(loginUserDto);
+    public ResponseEntity<?> authenticate(@RequestBody LoginUserDto loginUserDto) {
+        try {
+            User authenticatedUser = authenticationService.authenticate(loginUserDto);
 
-        String jwtToken = jwtService.generateToken(authenticatedUser);
+            String jwtToken = jwtService.generateToken(authenticatedUser);
 
-        LoginResponse loginResponse = new LoginResponse.Builder()
-            .setToken(jwtToken)
-            .setExpiresIn(jwtService.getExpirationTime())
-            .build();
+            LoginResponse loginResponse = new LoginResponse.Builder()
+                .setToken(jwtToken)
+                .setExpiresIn(jwtService.getExpirationTime())
+                .build();
 
-        return ResponseEntity.ok(loginResponse);
+            return ResponseEntity.ok(loginResponse);
+        }
+        catch (AuthenticationException ex) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "error");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
     }
 
     @GetMapping("/me")
