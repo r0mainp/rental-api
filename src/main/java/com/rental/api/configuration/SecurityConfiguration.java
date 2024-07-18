@@ -35,6 +35,8 @@ public class SecurityConfiguration {
         http.csrf((csrf) -> csrf.disable()) // disable csrf (stateless)
         .authorizeHttpRequests((authorizeHttpRequests) ->
             authorizeHttpRequests.requestMatchers("/api/auth/**").permitAll()
+            .requestMatchers("/swagger-ui/**").permitAll()
+            .requestMatchers("/v3/api-docs/**").permitAll()
             .anyRequest().authenticated()
         ) // request allowed without authentication 
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // session management is stateless
