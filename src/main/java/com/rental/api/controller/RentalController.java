@@ -10,6 +10,14 @@ import com.rental.api.model.Rental;
 import com.rental.api.model.RentalResponse;
 import com.rental.api.service.RentalService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -23,9 +31,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 
 
-
 @RequestMapping("/api/rentals")
 @RestController
+@Tag(name = "Rental API", description = "API for CRUD operations on rentals")
 public class RentalController {
 
     private final RentalService rentalService;
@@ -36,6 +44,18 @@ public class RentalController {
 
     // Fetch all rentals and returns them in a RentalResponse
     @GetMapping("")
+        @Operation(
+        summary = "Get all rentals",
+        description = "Retrieve a list of all rental properties from the database",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", 
+                description = "List of rentals retrieved successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = RentalResponse.class))
+            )
+        }
+    )
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<RentalResponse> getAllRentals() {
         List<Rental> rentals = (List<Rental>) rentalService.getAllRentals();
         RentalResponse rentalResponse = new RentalResponse(rentals);
@@ -44,6 +64,20 @@ public class RentalController {
 
     // Fetch a rental by its id an return 200 or 404
     @GetMapping("/{id}")
+    @Operation(
+        summary = "Get a rental by ID",
+        description = "Retrieve a rental property by its ID from the database",
+        parameters = @Parameter(name = "id", description = "ID of the rental to be retrieved", required = true),
+        responses = {
+            @ApiResponse(
+                responseCode = "200", 
+                description = "Rental found and returned successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Rental not found for the provided ID")
+        }
+    )
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Rental> getRental(@PathVariable("id") final Integer id) {
         Optional<Rental> fetchedRental = rentalService.getRentalById(id);
         
@@ -54,6 +88,23 @@ public class RentalController {
     
     // Accepts a RentalCreateDto via multipart/form-data to create a new rental, return 201
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(
+        summary = "Create a new rental",
+        description = "Create a new rental property with the provided details",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Details of the rental to be created",
+            required = true,
+            content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(implementation = RentalCreateDto.class))
+        ),
+        responses = {
+            @ApiResponse(
+                responseCode = "201", 
+                description = "Rental created successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class))
+            )
+        }
+    )
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Rental> createRental(
         @RequestParam String name,
         @RequestParam int surface,
@@ -78,6 +129,24 @@ public class RentalController {
      * return 200;
      */
     @PutMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(
+        summary = "Update an existing rental",
+        description = "Update the details of an existing rental property by its ID",
+        parameters = @Parameter(name = "id", description = "ID of the rental to be updated", required = true),
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Updated details of the rental",
+            required = true,
+            content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(implementation = RentalUpdateDto.class))
+        ),
+        responses = {
+            @ApiResponse(
+                responseCode = "200", 
+                description = "Rental updated successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rental.class))
+            )
+        }
+    )
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Rental> updateRental(
         @PathVariable Integer id, 
         @RequestParam String name,
