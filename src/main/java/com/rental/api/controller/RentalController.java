@@ -6,9 +6,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.rental.api.dto.RentalCreateDto;
 import com.rental.api.dto.RentalUpdateDto;
-import com.rental.api.model.GenericResponse;
 import com.rental.api.model.Rental;
-import com.rental.api.model.RentalResponse;
+import com.rental.api.response.GenericResponse;
+import com.rental.api.response.RentalResponse;
 import com.rental.api.service.RentalService;
 
 import io.swagger.v3.oas.annotations.Operation;

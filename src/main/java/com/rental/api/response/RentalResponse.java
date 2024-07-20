@@ -1,6 +1,8 @@
-package com.rental.api.model;
+package com.rental.api.response;
 
 import java.util.List;
+
+import com.rental.api.model.Rental;
 
 /**
  * Represents a response object containing a list of rental properties.

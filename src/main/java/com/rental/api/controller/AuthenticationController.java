@@ -5,10 +5,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rental.api.dto.LoginUserDto;
 import com.rental.api.dto.RegisterUserDto;
-import com.rental.api.model.GenericResponse;
-import com.rental.api.model.AuthResponse;
 import com.rental.api.model.User;
-import com.rental.api.model.UserDetailsResponse;
+import com.rental.api.response.AuthResponse;
+import com.rental.api.response.GenericResponse;
+import com.rental.api.response.UserDetailsResponse;
 import com.rental.api.service.AuthenticationService;
 import com.rental.api.service.JwtService;
 
