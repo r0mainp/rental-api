@@ -31,8 +31,11 @@
 
 - run app with `mvn spring-boot:run`
 
+## Swagger URL
 
-### Rental app API
+- Swagger is available at `http://localhost:3001/swagger-ui/index.html#/`
+
+## Rental app API
 
 - This is an api for a rental app implementing routes necessary for
     - register a user
