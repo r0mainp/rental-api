@@ -1,4 +1,4 @@
-package com.rental.api.model;
+package com.rental.api.response;
 
 /**
  * AuthResponse class represents a response containing an authentication token.
