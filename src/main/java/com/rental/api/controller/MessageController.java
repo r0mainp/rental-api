@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rental.api.dto.MessageDto;
-import com.rental.api.model.GenericResponse;
+import com.rental.api.response.GenericResponse;
 import com.rental.api.service.MessageService;
 
 import io.swagger.v3.oas.annotations.Operation;
