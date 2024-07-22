@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rental.api.model.GenericResponse;
 import com.rental.api.model.User;
-import com.rental.api.model.UserDetailsResponse;
+import com.rental.api.response.GenericResponse;
+import com.rental.api.response.UserDetailsResponse;
 import com.rental.api.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;

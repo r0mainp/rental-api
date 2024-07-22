@@ -1,4 +1,4 @@
-package com.rental.api.model;
+package com.rental.api.response;
 
 /**
  * GenericResponse class represents a generic response message.
